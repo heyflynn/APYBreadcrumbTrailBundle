@@ -12,7 +12,6 @@
 namespace APY\BreadcrumbTrailBundle\Twig;
 
 use APY\BreadcrumbTrailBundle\BreadcrumbTrail\Trail;
-use Symfony\Component\Templating\EngineInterface;
 
 /**
  * Provides an extension for Twig to output breadcrumbs
@@ -20,7 +19,6 @@ use Symfony\Component\Templating\EngineInterface;
 class BreadcrumbTrailExtension extends \Twig_Extension
 {
     private $trail;
-    private $templating;
 
 
     /**
@@ -28,10 +26,9 @@ class BreadcrumbTrailExtension extends \Twig_Extension
      * @param Trail $trail
      * @param EngineInterface $templating
      */
-    public function __construct(Trail $trail, EngineInterface $templating)
+    public function __construct(Trail $trail)
     {
         $this->trail = $trail;
-        $this->templating = $templating;
     }
 
     /**
@@ -42,7 +39,7 @@ class BreadcrumbTrailExtension extends \Twig_Extension
     public function getFunctions()
     {
         return array(
-            new \Twig_SimpleFunction("apy_breadcrumb_trail_render", array($this, "renderBreadcrumbTrail"), array("is_safe" => array("html"))),
+            new \Twig_SimpleFunction("apy_breadcrumb_trail_render", array($this, "renderBreadcrumbTrail"), array("is_safe" => array("html"), "needs_environment" => true)),
         );
     }
 
@@ -51,9 +48,9 @@ class BreadcrumbTrailExtension extends \Twig_Extension
      *
      * @return string
      */
-    public function renderBreadcrumbTrail($template = null)
+    public function renderBreadcrumbTrail($template = null, \Twig_Environment $environment)
     {
-        return $this->templating->render(
+        return $environment->render(
                 $template === null ? $this->trail->getTemplate() : $template,
                 array( 'breadcrumbs' => $this->trail )
         );
